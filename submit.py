@@ -17,8 +17,6 @@ TODO:
     - Leaderboard?
 """
 
-app = Flask(__name__)
-
 def classify_image(image_url):
     # Instantiate a Google Vision client
     client = vision.ImageAnnotatorClient()
@@ -72,10 +70,3 @@ def process_sms():
     response.message(reply)
     
     return str(response)
-
-@app.route('/')
-def build_index():
-    return 'SMS Scavenger Hunt is up and running'
-
-if __name__ == "__main__":
-    app.run(debug=True)
