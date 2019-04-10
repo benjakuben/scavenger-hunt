@@ -1,5 +1,7 @@
 import os
 
+from scavenger.sender import schedule_rounds
+
 from flask import Flask, request, redirect, render_template, url_for
 from flask_bootstrap import Bootstrap
 from twilio.twiml.messaging_response import MessagingResponse
@@ -42,9 +44,7 @@ def create_app(test_config=None):
     from . import sender
     app.register_blueprint(sender.bp)
 
-    @app.route('/hello')
-    def hello():
-        return 'Hello! It\'s working!'
+    schedule_rounds(app)
 
     @app.route('/', methods=['GET', 'POST'])
     def route():
