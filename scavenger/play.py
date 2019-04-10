@@ -4,6 +4,8 @@ import io
 import os
 
 from scavenger.db import get_db, query_db
+from scavenger.item import Item
+
 from urllib.request import urlopen, Request
 from twilio.twiml.messaging_response import MessagingResponse
 from flask import (
@@ -33,6 +35,8 @@ def process_photo():
                         request.form.get("MediaContentType{}".format(i), ''))
                        for i in range(0, num_media)]
     
+        reply = ''
+
         # Check for image
         if num_media == 0:
             reply = 'You must send a photo to play!'
@@ -40,12 +44,32 @@ def process_photo():
             # Parse image
             if num_media > 1:
                 print('Please only send one image. We will only accept the first image in the group.')
-            label = classify_image(media_files[0][0])
-            reply = f'That looks like: {label}'
+            labels = classify_image(media_files[0][0])
+
+            if len(labels) == 0:
+                reply = 'Not a match. Try another photo!'
+            else: 
+                for label in labels:
+                    item = get_current_item()
+                    if label.upper() == item.name.upper():
+                        print('It\'s a match!')
+                        # It's a match! Award points if not already matched for this user
+                        points = 10
+                        db.execute(
+                            'INSERT INTO submissions (user_id, item_id, points) ' \
+                            'VALUES (?, ?, ?)', 
+                            (phone_number, item.id, points,)
+                        )
+                        db.commit()
+                        reply = f'Nicely done! {points} points!'
+                        break
+                    else:
+                        print(f'Not a match ({label}).')
+                        reply = 'Not a match. Try another photo!'
 
         response = MessagingResponse()
-        response.message(reply)
-    
+        response.message(reply)    
+
         return str(response)
 
 
@@ -66,23 +90,19 @@ def classify_image(image_url):
     response = client.label_detection(image=image)
     labels = response.label_annotations
 
-    # Output to console for testing
+    # Return a list of labels above the threshold
+    top_labels = []
     for label in labels:
-        print(f'{label.description}({label.score})\n')
+        print(f'{label.description}, {label.score}')
+        if label.score > 0.6:
+            top_labels.append(label.description)
 
-    # Make sure we have labels returned
-    if len(labels) > 0:
-        label = labels[0].description
-    else:
-        label = 'Sorry, there was an error classifying your photo.'
-
-    return label
+    return top_labels
 
 
 @bp.route('/players', methods=['GET'])
 def list_players():
     players = query_db('SELECT * FROM users')
-        # print(f"Phone #: {user['phone_number']}, id: {user['id']}")
     return render_template('players.html', data=players)
 
 
@@ -95,3 +115,29 @@ def show_leaderboard():
         return str(response)
     else:
         return render_template('leaderboard.html', data=leaders)
+
+
+def get_current_item():
+    item = query_db(
+        'SELECT r.item_id, i.name ' \
+        'FROM rounds r ' \
+        'JOIN items i ON i.id = r.item_id ' \
+        'WHERE r.created = (SELECT MAX(created) FROM rounds)'
+    )
+
+    return Item(item[0][0], item[0][1])
+
+
+@bp.route('/test', methods=['GET'])
+def test_sql():
+    # rounds = query_db(
+    #     'SELECT r.item_id, i.name ' \
+    #     'FROM rounds r ' \
+    #     'JOIN items i ON i.id = r.item_id ' \
+    #     'WHERE r.created = (SELECT MAX(created) FROM rounds)'
+    # )
+    # msg = str(rounds[0][0])
+    # msg += '\n' + str(rounds[0][1]
+    item = get_current_item()
+
+    return item.name

@@ -22,6 +22,13 @@ CREATE TABLE submissions (
   FOREIGN KEY(item_id) REFERENCES items(id)
 );
 
+CREATE TABLE rounds (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  item_id INTEGER NOT NULL,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY(item_id) REFERENCES items(id)
+);
+
 INSERT INTO items (name) VALUES ('Hat');
 INSERT INTO items (name) VALUES ('Dog');
 INSERT INTO items (name) VALUES ('Computer');

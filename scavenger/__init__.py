@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, request, redirect, render_template, url_for
 from flask_bootstrap import Bootstrap
+from twilio.twiml.messaging_response import MessagingResponse
 
 
 def create_app(test_config=None):
@@ -48,8 +49,7 @@ def create_app(test_config=None):
     @app.route('/', methods=['GET', 'POST'])
     def route():
         if request.method == 'POST':
-            """Send a dynamic reply to an incoming text message"""
-            # Get the message the user sent our Twilio number
+            # Get the message the user sent to Twilio
             body = request.values.get('Body', None)
 
             # Check for a photo
@@ -66,7 +66,12 @@ def create_app(test_config=None):
                 return redirect(url_for('play.process_photo'))
             else: 
                 # return a generic help message
-                print('temp')
+                response = MessagingResponse()
+                response.message('Text \'join\' to start playing, text \'q\' to stop. ' \
+                    'Text \'leaders\' for today\'s leaderboard. Send a picture (no text) ' \
+                    'when you find the latest item!')
+                return str(response)
+
         else:
             return render_template('index.html', data=None)
 
