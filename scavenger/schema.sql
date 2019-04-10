@@ -21,3 +21,14 @@ CREATE TABLE submissions (
   FOREIGN KEY(user_id) REFERENCES users(id),
   FOREIGN KEY(item_id) REFERENCES items(id)
 );
+
+INSERT INTO items (name) VALUES ('Hat');
+INSERT INTO items (name) VALUES ('Dog');
+INSERT INTO items (name) VALUES ('Computer');
+INSERT INTO items (name) VALUES ('Apple');
+INSERT INTO items (name) VALUES ('Flower');
+INSERT INTO items (name) VALUES ('Book');
+INSERT INTO items (name) VALUES ('Shoe');
+INSERT INTO items (name) VALUES ('Bus');
+INSERT INTO items (name) VALUES ('Basketball');
+INSERT INTO items (name) VALUES ('Cat');

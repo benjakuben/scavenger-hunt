@@ -1,10 +1,10 @@
 {% extends "bootstrap/base.html" %}
-{% block title %}TEST - Players{% endblock %}
+{% block title %}Leaderboard{% endblock %}
 
 {% block content %}
     <div class="m-5">
       {% for item in data %}
-        <li>{{item['phone_number']}}</li>
+        <li>{{item[0]}}</li>
       {% endfor %}
     </div>
 {% endblock %}

@@ -1,17 +1,23 @@
 
 import functools
+import io
+import os
 
+from scavenger.db import get_db, query_db
+from urllib.request import urlopen, Request
 from twilio.twiml.messaging_response import MessagingResponse
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for, Response
 )
 
-from scavenger.db import get_db, query_db
+# Google Cloud client library
+from google.cloud import vision
+from google.cloud.vision import types
 
 bp = Blueprint('play', __name__, url_prefix='/play')
 
 @bp.route('/submit', methods=['POST'])
-def process_sms():
+def process_photo():
     phone_number = request.form['From']
     db = get_db()
     error = None
@@ -37,19 +43,10 @@ def process_sms():
             label = classify_image(media_files[0][0])
             reply = f'That looks like: {label}'
 
-    # if error is None:
-    #     db.execute(
-    #         'INSERT INTO users (phone_number) VALUES (?)', (phone_number,)
-    #     )
-    #     db.commit()
-    #     return redirect(url_for('auth.process_sms'))
-
-    # flash(error)
-
-    response = MessagingResponse()
-    response.message(reply)
+        response = MessagingResponse()
+        response.message(reply)
     
-    return str(response)
+        return str(response)
 
 
 def classify_image(image_url):
@@ -88,3 +85,13 @@ def list_players():
         # print(f"Phone #: {user['phone_number']}, id: {user['id']}")
     return render_template('players.html', data=players)
 
+
+@bp.route('/leaders', methods=['GET', 'POST'])
+def show_leaderboard():
+    leaders = None
+    if request.method == 'POST':
+        response = MessagingResponse()
+        response.message('TODO: Show Leaders')
+        return str(response)
+    else:
+        return render_template('leaderboard.html', data=leaders)
