@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS items;
 DROP TABLE IF EXISTS submissions;
+DROP TABLE IF EXISTS rounds;
 
 CREATE TABLE users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,3 +40,13 @@ INSERT INTO items (name) VALUES ('Shoe');
 INSERT INTO items (name) VALUES ('Bus');
 INSERT INTO items (name) VALUES ('Basketball');
 INSERT INTO items (name) VALUES ('Cat');
+INSERT INTO items (name) VALUES ('Brush');
+INSERT INTO items (name) VALUES ('Broccoli');
+INSERT INTO items (name) VALUES ('Cloud');
+INSERT INTO items (name) VALUES ('Tree');
+INSERT INTO items (name) VALUES ('Fish');
+INSERT INTO items (name) VALUES ('Trophy');
+INSERT INTO items (name) VALUES ('Lamp');
+INSERT INTO items (name) VALUES ('Piano');
+INSERT INTO items (name) VALUES ('Squirrel');
+INSERT INTO items (name) VALUES ('Guitar');

@@ -1,6 +1,8 @@
 import random
 import atexit
+import time
 
+from time import gmtime, strftime
 from apscheduler.schedulers.background import BackgroundScheduler
 from twilio.twiml.messaging_response import MessagingResponse
 from twilio.rest import Client
@@ -10,7 +12,11 @@ from flask import (
 
 from scavenger.db import get_db, query_db
 
+
 bp = Blueprint('sender', __name__, url_prefix='/sender')
+
+
+ROUND_INTERVAL = 70
 
 
 def schedule_rounds(app):
@@ -20,7 +26,7 @@ def schedule_rounds(app):
     # Schedule the rest
     print('Scheduling rounds.')
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=send_next_item, trigger="interval", args=[app], minutes=90)
+    scheduler.add_job(func=send_next_item, trigger="interval", args=[app], minutes=ROUND_INTERVAL)
     scheduler.start()
 
     # Shut down the scheduler when exiting the app
@@ -31,10 +37,19 @@ def schedule_rounds(app):
 def send_next_item(app):
     with app.app_context():
         # Get a random item to scavenge
-        # TODO: Track items used in a day
-        items = query_db('SELECT id, name FROM items')
+        prev_items = get_items_from_today()
+        prefix = ''
+        items = []
+        if len(prev_items) == 0:
+            prefix = 'The first item of the day is:'
+            items = query_db('SELECT id, name FROM items')
+        else:
+            prefix = 'The previous round has ended! The next item to find is:'
+            # Prevent the same one showing up twice (TODO: Make this at most once per day)
+            items = query_db(f'SELECT id, name FROM items WHERE id <> {prev_items[0][0]}')
+
         current_item = items[random.randint(0, len(items)-1)]
-        message = f'Your next item to scavenge is: {current_item[1]}'
+        message = f'{prefix} {current_item[1]}'
 
         # Store the new item in the db
         db = get_db()
@@ -69,3 +84,11 @@ def send_sms(phone_number, message):
     )
 
     print(message.sid)
+
+
+def get_items_from_today():
+    current_date = time.strftime('%Y-%m-%d', time.gmtime())
+    prev_items = query_db(
+        f'SELECT item_id, created FROM rounds WHERE created >= date(\'{current_date}\') ORDER BY created DESC'
+    )
+    return prev_items

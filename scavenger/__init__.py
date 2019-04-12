@@ -46,6 +46,7 @@ def create_app(test_config=None):
 
     schedule_rounds(app)
 
+    # Handle routing for both the web and SMS requests
     @app.route('/', methods=['GET', 'POST'])
     def route():
         if request.method == 'POST':

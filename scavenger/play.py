@@ -108,10 +108,14 @@ def list_players():
 
 @bp.route('/leaders', methods=['GET', 'POST'])
 def show_leaderboard():
-    leaders = None
+    leaders = get_leaders()
     if request.method == 'POST':
+        leader_reply = ''
+        for leader in leaders:
+            leader_reply += f'{leader[0]}: {leader[1]} points\n'
+
         response = MessagingResponse()
-        response.message('TODO: Show Leaders')
+        response.message(leader_reply)
         return str(response)
     else:
         return render_template('leaderboard.html', data=leaders)
@@ -128,16 +132,8 @@ def get_current_item():
     return Item(item[0][0], item[0][1])
 
 
-@bp.route('/test', methods=['GET'])
-def test_sql():
-    # rounds = query_db(
-    #     'SELECT r.item_id, i.name ' \
-    #     'FROM rounds r ' \
-    #     'JOIN items i ON i.id = r.item_id ' \
-    #     'WHERE r.created = (SELECT MAX(created) FROM rounds)'
-    # )
-    # msg = str(rounds[0][0])
-    # msg += '\n' + str(rounds[0][1]
-    item = get_current_item()
-
-    return item.name
+def get_leaders():
+    leaders = query_db(
+        'SELECT user_id, SUM(points) FROM submissions GROUP BY user_id ORDER BY SUM(POINTS)'
+    )
+    return leaders

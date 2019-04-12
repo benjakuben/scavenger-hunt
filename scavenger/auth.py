@@ -1,4 +1,3 @@
-
 import functools
 
 from twilio.twiml.messaging_response import MessagingResponse
@@ -9,6 +8,10 @@ from flask import (
 from scavenger.db import get_db, query_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
+
+WELCOME_MESSAGE = 'Welcome to the hunt! We\'ll message you when the next round starts. ' \
+    'Text \'q\' to quit or \'leaders\' for today\'s leaderboard. Send a picture (no text) ' \
+    'when you find the latest item!'
 
 @bp.route('/join', methods=['GET', 'POST'])
 def process_join():
@@ -26,7 +29,6 @@ def process_join():
 
         if error is None:
             db.execute(
-                # TODO: Add creation_date to this table and statement
                 'INSERT INTO users (phone_number) VALUES (?)', (phone_number,)
             )
             db.commit()
@@ -35,7 +37,7 @@ def process_join():
         flash(error)
 
         response = MessagingResponse()
-        response.message('Success! We\'ll message you when the next round starts!')
+        response.message(WELCOME_MESSAGE)
         return str(response)
 
     elif request.method == 'GET':
@@ -57,5 +59,5 @@ def process_quit():
         db.commit()
 
     response = MessagingResponse()
-    response.message('You have left the game. Text JOIN to start again!')
+    response.message('You have left the game. Text \'join\' to start again!')
     return str(response)

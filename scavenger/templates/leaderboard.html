@@ -3,8 +3,8 @@
 
 {% block content %}
     <div class="m-5">
-      {% for item in data %}
-        <li>{{item[0]}}</li>
+      {% for leader in data %}
+        <li>{{leader[0]}} - {{leader[1]}}</li>
       {% endfor %}
     </div>
 {% endblock %}
