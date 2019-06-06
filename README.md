@@ -14,6 +14,11 @@ If Flask and other libraries are needed:
 pip install -r requirements.txt
 ```
 
+## Google Vision API
+```
+export GOOGLE_APPLICATION_CREDENTIALS=<path to .json key> # from Google Cloud console
+```
+
 ## Running the app
 Set up your local Flask environment:
 ```

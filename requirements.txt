@@ -1,0 +1,5 @@
+Flask==1.0.3
+APScheduler==3.6.0
+twilio==6.27.1
+Flask-Bootstrap4==4.0.2
+google-cloud-vision==0.37.0
